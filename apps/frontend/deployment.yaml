@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: harupandiacr.azurecr.io/devops-employee-frontend:635af94fb862626c4596826a4e2f6f07b7e58d79
+          image: harupandiacr.azurecr.io/devops-employee-frontend:da45c98ba99b35f0eedb2f9a01bbc0c904e86ea0
           imagePullPolicy: Always
 
           ports:
