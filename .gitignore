@@ -1,0 +1,118 @@
+# ==========================================
+# OS files
+# ==========================================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+
+# ==========================================
+# IDEs and editors
+# ==========================================
+
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains
+.idea/
+*.iml
+
+# Visual Studio
+.vs/
+
+
+# ==========================================
+# Environment and secrets
+# ==========================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Secret files
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Kubernetes files containing local secrets
+secrets.yaml
+secret.yaml
+secrets.yml
+secret.yml
+
+# Local kubeconfig files
+kubeconfig
+kubeconfig.yaml
+kubeconfig.yml
+
+
+# ==========================================
+# Kubernetes temporary files
+# ==========================================
+
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Generated manifests
+rendered/
+generated/
+
+
+# ==========================================
+# Helm
+# ==========================================
+
+# Downloaded chart dependencies
+charts/
+
+# Helm packaged charts
+*.tgz
+
+
+# ==========================================
+# Terraform (if Terraform is not managed here)
+# ==========================================
+
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+logs/
+
+
+# ==========================================
+# Testing
+# ==========================================
+
+coverage/
+.coverage
+htmlcov/
+
+
+# ==========================================
+# Local Kubernetes tools
+# ==========================================
+
+# Minikube
+.minikube/
+
+# Kind
+kind-config-local.yaml
