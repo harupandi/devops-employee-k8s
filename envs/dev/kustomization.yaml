@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - ../../apps/backend
   - ../../apps/frontend
-  - ../../gateway/gateway
-  - ../../gateway/httproute
+  - ../../gateway
