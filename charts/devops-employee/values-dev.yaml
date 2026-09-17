@@ -1,0 +1,20 @@
+# Dev environment overrides.
+# Deploy with:
+#   helm upgrade --install devops-employee-dev ./charts/devops-employee \
+#     -f ./charts/devops-employee/values.yaml \
+#     -f ./charts/devops-employee/values-dev.yaml \
+#     -n dev --create-namespace
+#
+# These are the exact image tags currently hardcoded in apps/backend/deployment.yaml
+# and apps/frontend/deployment.yaml - carried over as-is so the migration is a
+# like-for-like swap. Once your CI/CD updates dev automatically, this tag will be
+# overridden per-deploy with --set or by whatever writes to this file (see the
+# CI notes at the end of the migration guide).
+
+backend:
+  image:
+    tag: "699cb68d84277d1fd440e6139748c1ad435028b6"
+
+frontend:
+  image:
+    tag: "da45c98ba99b35f0eedb2f9a01bbc0c904e86ea0"

@@ -1,0 +1,14 @@
+devops-employee deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Backend:  {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+Frontend: {{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}
+
+Check rollout status:
+  kubectl rollout status deployment/{{ .Values.backend.name }} -n {{ .Release.Namespace }}
+  kubectl rollout status deployment/{{ .Values.frontend.name }} -n {{ .Release.Namespace }}
+
+{{- if .Values.gateway.enabled }}
+Check the Gateway/HTTPRoute:
+  kubectl get gateway {{ .Values.gateway.name }} -n {{ .Release.Namespace }}
+  kubectl get httproute {{ .Values.gateway.name }} -n {{ .Release.Namespace }}
+{{- end }}

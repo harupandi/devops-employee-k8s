@@ -73,7 +73,7 @@ generated/
 # ==========================================
 
 # Downloaded chart dependencies
-charts/
+charts/**/charts
 
 # Helm packaged charts
 *.tgz
