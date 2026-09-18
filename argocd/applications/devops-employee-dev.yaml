@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-employee-dev
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/harupandi/devops-employee-k8s.git
+    targetRevision: main
+    path: charts/devops-employee
+    helm:
+      valueFiles:
+        - values-dev.yaml
+      ignoreMissingValueFiles: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,89 @@
+# Default values for devops-employee.
+# Environment-specific overrides live in values-<env>.yaml (e.g. values-dev.yaml)
+# and are layered on top of this file with `helm upgrade -f values.yaml -f values-dev.yaml`.
+
+# Pull secret(s) for ACR, if the cluster's kubelet identity isn't already
+# granted AcrPull (e.g. via `az aks update --attach-acr`). Leave empty if
+# your AKS cluster is already attached to the ACR.
+imagePullSecrets: []
+# - name: acr-secret
+
+gateway:
+  enabled: true
+  name: devops-employee
+  gatewayClassName: approuting-istio
+  listenerPort: 80
+
+backend:
+  name: backend
+  replicaCount: 1
+
+  image:
+    repository: harupandiacr.azurecr.io/devops-employee-backend
+    tag: ""              # required - set per environment in values-<env>.yaml
+    pullPolicy: Always
+
+  containerPort: 5000
+
+  service:
+    type: ClusterIP
+    port: 5000
+    targetPort: http
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  probes:
+    readiness:
+      path: /health
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    liveness:
+      path: /health
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+  route:
+    pathPrefix: /api
+
+frontend:
+  name: frontend
+  replicaCount: 1
+
+  image:
+    repository: harupandiacr.azurecr.io/devops-employee-frontend
+    tag: ""              # required - set per environment in values-<env>.yaml
+    pullPolicy: Always
+
+  containerPort: 80
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: http
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+  probes:
+    readiness:
+      path: /
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    liveness:
+      path: /
+      initialDelaySeconds: 10
+      periodSeconds: 20
+
+  route:
+    pathPrefix: /
