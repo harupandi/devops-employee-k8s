@@ -10,7 +10,7 @@ Other related repositories:
 
 ## ArgoCD
 
-* Installed using Helm provider in [terraform](https://github.com/harupandi/devops-employee-infrastructure) repository
+* Installed using Helm provider in [terraform](https://github.com/harupandi/devops-employee-infrastructure/blob/main/modules/argocd/main.tf) repository
 * For first-time cluster creation, bootstrap workflow runs `kubectl apply -f argocd/applications/devops-employee-*.yml` based on environment selection
 
 ## Environments
