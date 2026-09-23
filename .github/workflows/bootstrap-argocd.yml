@@ -25,11 +25,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      
-      - name: Set environment variables
-        run: |
-          echo "AKS_CLUSTER_NAME=devops-employee-${{ inputs.environment }}-aks" >> "$GITHUB_ENV"
-          echo "AKS_RESOURCE_GROUP=devops-employee-${{ inputs.environment }}-rg" >> "$GITHUB_ENV"
+
+      - name: Setup Azure CLI
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az version
 
       - name: Azure Login
         uses: azure/login@v2
@@ -37,6 +39,11 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Set environment variables
+        run: |
+          echo "AKS_CLUSTER_NAME=devops-employee-${{ inputs.environment }}-aks" >> "$GITHUB_ENV"
+          echo "AKS_RESOURCE_GROUP=devops-employee-${{ inputs.environment }}-rg" >> "$GITHUB_ENV"
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
