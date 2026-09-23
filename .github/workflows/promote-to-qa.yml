@@ -15,11 +15,9 @@ jobs:
   promote:
     name: Promote ${{ inputs.component }} to QA
     runs-on: ubuntu-latest
-    environment: qa
-
     permissions:
       contents: write
-      id-token: write
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -27,21 +25,6 @@ jobs:
 
       - name: Setup yq
         uses: mikefarah/yq@v4
-
-      - name: Set image repository
-        run: |
-          case "${{ inputs.component }}" in
-            frontend)
-              echo "IMAGE_REPOSITORY=devops-employee-frontend" >> "$GITHUB_ENV"
-              ;;
-            backend)
-              echo "IMAGE_REPOSITORY=devops-employee-backend" >> "$GITHUB_ENV"
-              ;;
-            *)
-              echo "Invalid component"
-              exit 1
-              ;;
-          esac
 
       - name: Get Dev image tag
         run: |
@@ -51,6 +34,10 @@ jobs:
               ;;
             backend)
               IMAGE_TAG=$(yq '.backend.image.tag' charts/devops-employee/values-dev.yaml)
+              ;;
+            *)
+              echo "Invalid component"
+              exit 1
               ;;
           esac
 
@@ -62,23 +49,6 @@ jobs:
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
 
           echo "Dev image tag: $IMAGE_TAG"
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Verify image exists in ACR
-        run: |
-          az acr repository show \
-            --name "${{ vars.ACR_NAME }}" \
-            --image "$IMAGE_REPOSITORY:$IMAGE_TAG" \
-            --output none
-
-          echo "Image verified:"
-          echo "$IMAGE_REPOSITORY:$IMAGE_TAG"
 
       - name: Update QA image tag
         run: |
@@ -92,6 +62,10 @@ jobs:
               yq -i \
                 '.backend.image.tag = strenv(IMAGE_TAG)' \
                 charts/devops-employee/values-qa.yaml
+              ;;
+            *)
+              echo "Invalid component"
+              exit 1
               ;;
           esac
 
