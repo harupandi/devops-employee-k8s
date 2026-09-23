@@ -29,7 +29,7 @@ jobs:
       - name: Setup Azure CLI
         uses: azure/cli@v2
         with:
-          azcliversion: latest
+          azcliversion: 2.89.0
           inlineScript: |
             az version
 
@@ -51,11 +51,11 @@ jobs:
       - name: Get AKS credentials
         run: |
           az aks get-credentials \
-            --resource-group "${{ vars.AKS_RESOURCE_GROUP }}" \
-            --name "${{ vars.AKS_CLUSTER_NAME }}" \
+            --resource-group "$AKS_RESOURCE_GROUP" \
+            --name "$AKS_CLUSTER_NAME" \
             --overwrite-existing
 
       - name: Bootstrap Argo CD
         run: |
           kubectl apply \
-            -f argocd/applications/devops-employee-dev.yaml
+            -f "argocd/applications/devops-employee-${{ inputs.environment }}.yaml"
