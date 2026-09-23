@@ -1,0 +1,132 @@
+name: Promote to QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "Component to promote"
+        required: true
+        type: choice
+        options:
+          - frontend
+          - backend
+
+jobs:
+  promote:
+    name: Promote ${{ inputs.component }} to QA
+    runs-on: ubuntu-latest
+    environment: qa
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup yq
+        uses: mikefarah/yq@v4
+
+      - name: Set image repository
+        run: |
+          case "${{ inputs.component }}" in
+            frontend)
+              echo "IMAGE_REPOSITORY=devops-employee-frontend" >> "$GITHUB_ENV"
+              ;;
+            backend)
+              echo "IMAGE_REPOSITORY=devops-employee-backend" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "Invalid component"
+              exit 1
+              ;;
+          esac
+
+      - name: Get Dev image tag
+        run: |
+          case "${{ inputs.component }}" in
+            frontend)
+              IMAGE_TAG=$(yq '.frontend.image.tag' charts/devops-employee/values-dev.yaml)
+              ;;
+            backend)
+              IMAGE_TAG=$(yq '.backend.image.tag' charts/devops-employee/values-dev.yaml)
+              ;;
+          esac
+
+          if [ -z "$IMAGE_TAG" ] || [ "$IMAGE_TAG" = "null" ]; then
+            echo "Image tag not found in values-dev.yaml"
+            exit 1
+          fi
+
+          echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
+
+          echo "Dev image tag: $IMAGE_TAG"
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify image exists in ACR
+        run: |
+          az acr repository show \
+            --name "${{ vars.ACR_NAME }}" \
+            --image "$IMAGE_REPOSITORY:$IMAGE_TAG" \
+            --output none
+
+          echo "Image verified:"
+          echo "$IMAGE_REPOSITORY:$IMAGE_TAG"
+
+      - name: Update QA image tag
+        run: |
+          case "${{ inputs.component }}" in
+            frontend)
+              yq -i \
+                '.frontend.image.tag = strenv(IMAGE_TAG)' \
+                charts/devops-employee/values-qa.yaml
+              ;;
+            backend)
+              yq -i \
+                '.backend.image.tag = strenv(IMAGE_TAG)' \
+                charts/devops-employee/values-qa.yaml
+              ;;
+          esac
+
+      - name: Show changes
+        run: |
+          git diff -- charts/devops-employee/values-qa.yaml
+
+      - name: Create promotion branch
+        run: |
+          BRANCH="promote-${{ inputs.component }}-${IMAGE_TAG}-to-qa"
+
+          git checkout -b "$BRANCH"
+
+          echo "PROMOTION_BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Commit promotion
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add charts/devops-employee/values-qa.yaml
+
+          git commit \
+            -m "promote ${{ inputs.component }} $IMAGE_TAG to QA"
+
+      - name: Push promotion branch
+        run: |
+          git push origin "$PROMOTION_BRANCH"
+
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "$PROMOTION_BRANCH" \
+            --title "Promote ${{ inputs.component }} $IMAGE_TAG to QA" \
+            --body "Promotes ${{ inputs.component }} image $IMAGE_TAG from Dev to QA."
