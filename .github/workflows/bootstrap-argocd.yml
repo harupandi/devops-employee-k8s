@@ -12,6 +12,9 @@ on:
           - qa
           - prod
 
+env:
+  ARM_USE_OIDC: true
+
 jobs:
   bootstrap:
     name: Bootstrap Argo CD
