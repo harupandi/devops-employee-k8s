@@ -31,6 +31,10 @@ Each environment (dev/qa/prod) is configured using Helm charts and contains:
 
 ## Roadmap
 
+* [ ] Add Helm lint
+* [ ] Add Secret scanning
+* [ ] Add Helm template validation
+* [ ] Add kubeconform
 * [ ] Promote to prod
 
 The goal is to keep AKS configuration version-controlled and managed through ArgoCD for GitOps style CD.
