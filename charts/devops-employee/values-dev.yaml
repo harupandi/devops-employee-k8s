@@ -13,7 +13,7 @@
 
 backend:
   image:
-    tag: "9276d00a2fda75411c2228948151cdacab1ad672"
+    tag: "03efc6b41dc48665b3be6d84ae9d503ebd685f5a"
 frontend:
   image:
     tag: "e609ff40b62c3184b55da8d9dfe224e4c927f1d3"
